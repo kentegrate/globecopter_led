@@ -1,4 +1,9 @@
+
 GlobeCopter LED
+
+## TODOs
+- Add a Kalman filter.
+- convert arduino sketch in enc directory to ESP32-idf format. 
 
 ## Abstract
 This code is a program for the GlobeCopter LED ring that runs on the ESP32 board.
