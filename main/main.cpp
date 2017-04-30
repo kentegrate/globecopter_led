@@ -1,61 +1,43 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cmath>
+#include "esp_types.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_system.h"
-#include "driver/spi_master.h"
-#include "soc/gpio_struct.h"
+#include "freertos/queue.h"
+#include "freertos/timers.h"
+#include "freertos/portmacro.h"
+#include "soc/timer_group_struct.h"
+#include "driver/periph_ctrl.h"
+#include "driver/timer.h"
 #include "driver/gpio.h"
-#include <esp_log.h>
-#include "nvs_flash.h"
+#include "driver/adc.h"
+#include "driver/ledc.h"
+#include "mc33926.hpp"
+#include "encoder.hpp"
+#include "dcservo.hpp"
 
-#include "esp_event.h"
-#include "esp_event_loop.h"
-#include <driver/spi_master.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 
-#include "sdkconfig.h"
-#include "spi.hpp"
+// Global variables
+#define MC33926_IN1 25
+#define MC33926_IN2 26
+#define MC33926_PWM 27
+#define MC33926_FB 36
+#define MC33926_nD2 14
+#define MC33926_nSF 12
+#define ENCODER_PHASE_A 32
+#define ENCODER_PHASE_B 33
+#define COEFF_STEP2RAD 1.0
 
-#include "Adafruit_DotStar.hpp"
 
-#include <driver/ledc.h>
-
-extern "C" void app_main()
+extern "C" void app_main(void)
 {
-  //  static char tag[] = "led_dim";
-  nvs_flash_init();
-
-  //  ring_led_data led_data(200, 360);
-  //  led_data.set_data(fullcolor);
-  
-  Adafruit_DotStar strip = Adafruit_DotStar(200, DOTSTAR_BRG);  
-  int c = 0;
-  uint32_t color;
-  strip.begin();
-  strip.show();
-
-  while(1){// show red, green, and blue forever.
-    for(int k = 0; k < 360; k++){
-      for(int i = 0; i < 200; i++){
-	if(c == 0){
-	  color = 0x0f0000;
-	}
-	else if(c==1){
-	  color = 0x000f00;
-	}
-	else{
-	  color = 0x00000f;
-	}
-	strip.setPixelColor(i, color);
-	c += 1;
-	if(c > 2)
-	  c = 0;
-      }
-      strip.show();                     // Refresh strip
-    }
-  }
-  
+  DCServo myServo(MC33926_IN1, MC33926_IN2,
+		  MC33926_PWM, MC33926_FB,
+		  MC33926_nD2, MC33926_nSF,
+		  ENCODER_PHASE_A, ENCODER_PHASE_B,
+		  COEFF_STEP2RAD);
+  myServo.init();
+  myServo.SetKCurrent(0.1,0.1,0.1);
+  myServo.SetTargetCurrent(500);
+  myServo.startControl();
 }
