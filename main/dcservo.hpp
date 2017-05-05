@@ -32,7 +32,7 @@
     MC33926Driver _motor;
 
      // constructor
-    DCServo(uint8_t IN1, uint8_t IN2, uint8_t PWM, uint8_t FB, uint8_t nD2, uint8_t nSF,
+    DCServo(uint8_t IN1, uint8_t IN2,
              uint8_t PhaseA, uint8_t PhaseB, double coeff_step2rad);
 
      // Public Member Function
@@ -74,7 +74,7 @@
       * 5 : position control without current limit
       */
     double _speed, _targetspeed;
-    double _currentMilliamp, _targetcurrentMilliamp;
+   double _currentMilliamp, _targetcurrentMilliamp, _currentFiltered;
     double _position, _targetposition;
     double _errorpos, _errorpos_pre, _errorpos_prepre;
     double _errorspeed, _errorspeed_pre, _errorspeed_prepre;

@@ -1,8 +1,9 @@
 #include "dcservo.hpp"
-DCServo::DCServo(uint8_t IN1, uint8_t IN2, uint8_t PWM, uint8_t FB, uint8_t nD2, uint8_t nSF,
+#include "esp_log.h"
+DCServo::DCServo(uint8_t IN1, uint8_t IN2,
                  uint8_t PhaseA, uint8_t PhaseB, double coeff_step2rad)
 {
-  _motor = MC33926Driver(IN1, IN2, PWM, FB, nD2, nSF);
+  _motor = MC33926Driver(IN1, IN2);
   _enc = Encoder(PhaseA, PhaseB, coeff_step2rad);
 
   _posKp = 0;
@@ -32,6 +33,7 @@ DCServo::DCServo(uint8_t IN1, uint8_t IN2, uint8_t PWM, uint8_t FB, uint8_t nD2,
   _dt = 0;
   _uPWM = 0;
   _maxMilliamps = 0;
+  _currentFiltered = 0;
 }
 
 void DCServo::SetKCurrent(double Kp, double Ki, double Kd)
@@ -90,8 +92,8 @@ void DCServo::startControl()
     timer_isr_register(TIMER_GROUP_0, TIMER_0, )
   */
 
-  _HandleCurrentControl = xTimerCreate("CurrentControl", (1 / portTICK_RATE_MS), pdTRUE, (void*)this, _CurrentControlfunc);
-  _HandleSpeedControl = xTimerCreate("SpeedControl", (5 / portTICK_RATE_MS), pdTRUE, (void*)this, _SpeedControlfunc);
+  _HandleCurrentControl = xTimerCreate("CurrentControl", (1.0/ portTICK_RATE_MS), pdTRUE, (void*)this, _CurrentControlfunc);
+  _HandleSpeedControl = xTimerCreate("SpeedControl", (5.0 / portTICK_RATE_MS), pdTRUE, (void*)this, _SpeedControlfunc);
   if(_HandleCurrentControl !=NULL) {
     xTimerStart(_HandleCurrentControl,0);
   }
@@ -103,7 +105,11 @@ void DCServo::startControl()
 void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
 {
   DCServo* myServo = (DCServo*)pvTimerGetTimerID(xTimer);
+  double r = 0.9;
+  static const char *tag = "DCservo";
   myServo->_currentMilliamp = myServo->_motor.getCurrentMilliamps();
+  myServo->_currentFiltered = myServo->_currentFiltered * r + (1-r) * myServo->_currentMilliamp;
+  ESP_LOGI(tag, "current filtered %f", myServo->_currentFiltered);
 
   myServo->_errorcurrent_prepre = myServo->_errorcurrent_pre;
   myServo->_errorcurrent_pre = myServo->_errorcurrent;
@@ -114,6 +120,8 @@ void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
     + myServo->_curKd * ((myServo->_errorcurrent - myServo->_errorcurrent_pre) - (myServo->_errorcurrent_pre - myServo->_errorcurrent_prepre));
 
   myServo->_motor.SetPWM(myServo->_uPWM);
+
+  ESP_LOGI(tag, "error : %f, pwm: %f" , myServo->_errorcurrent, myServo->_uPWM);
 }
 
 void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)

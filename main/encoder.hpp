@@ -29,7 +29,7 @@
    double getTheta();
 
    void _calctheta();
-   static void _updateEnc(void*);
+   //   static void IRAM_ATTR _updateEnc(void*);
    uint8_t _PhaseA;
    uint8_t _PhaseB;
    double _coeff_step2rad;

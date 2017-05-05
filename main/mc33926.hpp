@@ -17,28 +17,19 @@ public:
   // constructors
   MC33926Driver();
   MC33926Driver( unsigned char IN1,
-                 unsigned char IN2,
-                 unsigned char PWM,
-                 unsigned char FB,
-                 unsigned char nD2,
-                 unsigned char nSF);
+                 unsigned char IN2);
 
   // Public method
   void init();
   void SetPWM(int32_t PWM);
   double getCurrentMilliamps();
-  uint8_t getFault();
 private:
   // Pin Configuration
-  uint8_t _nD2;
   uint8_t _IN1;
   uint8_t _IN2;
-  uint8_t _PWM;
-  uint8_t _nSF;
-  uint8_t _FB;
-
   // ledc Configuration
-  ledc_channel_config_t _chcfg;
+  ledc_channel_config_t _chcfg_1;
+  ledc_channel_config_t _chcfg_2;  
   ledc_timer_config_t _tmcfg;
 
   //
