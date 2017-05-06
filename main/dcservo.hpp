@@ -10,6 +10,7 @@
 
 #include "encoder.hpp"
 #include "mc33926.hpp"
+#include "pid.hpp"
 #define TIMER_INTR_SEL TIMER_INTR_LEVEL  /*!< Timer level interrupt */
 #define TIMER_GROUP    TIMER_GROUP_0     /*!< Test on timer group 0 */
 #define TIMER_DIVIDER   16               /*!< Hardware timer clock divider */
@@ -81,10 +82,13 @@
     double _errorcurrent, _errorcurrent_pre, _errorcurrent_prepre;
     double _dt;
     double _uPWM;
-
+   
     double _maxMilliamps;
 
     TimerHandle_t _HandleCurrentControl;
     TimerHandle_t _HandleSpeedControl;
+
+   PID speedPID;
+   PID currentPID;
 };
 #endif //GLOBECOPTER_DCSERVO_HPP

@@ -30,14 +30,16 @@
    double getTheta();
 
    void _calctheta();
+   void _updateKF();
    static void _EncoderUpdatefunc(void*);
    //   static void IRAM_ATTR _updateEnc(void*);
    uint8_t _PhaseA;
    uint8_t _PhaseB;
    double _coeff_step2rad;
-   static int8_t _encnum;
+   //   static int8_t _encnum;
    TimerHandle_t _HandleEncoderUpdate;
-   
+   double P;
+   double w;
 
  };
 

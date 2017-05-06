@@ -30,9 +30,10 @@ extern "C" void app_main(void)
 		  COEFF_STEP2RAD);
   myServo.init();
   myServo.SetKCurrent(0.5,0.08,0);
-  myServo.SetTargetCurrent(20);
+  myServo.SetKSpeed(0.7,0.001,0.001);
+  //  myServo.SetKSpeed(
+  myServo.SetTargetSpeed(100);
   myServo.startControl();
-  myServo._motor.SetPWM(-700);
   while(1){
     ESP_LOGI(tag, "ok");
     vTaskDelay(1000/portTICK_PERIOD_MS);
