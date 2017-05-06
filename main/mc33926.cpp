@@ -114,8 +114,8 @@ double MC33926Driver::getCurrentMilliamps()
   double vsense = vout * 100.0/4700.0;
   double isense = vsense / 20e-3;
   static const char *tag = "m33926";  
-  ESP_LOGI(tag, "current %f", isense*1000);
-  ESP_LOGI(tag, "raw %d", raw);
+  //  ESP_LOGI(tag, "current %f", isense*1000);
+  //  ESP_LOGI(tag, "raw %d", raw);
   return isense * 1000;
 }
 

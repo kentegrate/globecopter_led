@@ -92,8 +92,8 @@ void DCServo::startControl()
     timer_isr_register(TIMER_GROUP_0, TIMER_0, )
   */
 
-  _HandleCurrentControl = xTimerCreate("CurrentControl", (1.0/ portTICK_RATE_MS), pdTRUE, (void*)this, _CurrentControlfunc);
-  _HandleSpeedControl = xTimerCreate("SpeedControl", (5.0 / portTICK_RATE_MS), pdTRUE, (void*)this, _SpeedControlfunc);
+  //  _HandleCurrentControl = xTimerCreate("CurrentControl", (10.0/ portTICK_RATE_MS), pdTRUE, (void*)this, _CurrentControlfunc);
+  //  _HandleSpeedControl = xTimerCreate("SpeedControl", (10.0 / portTICK_RATE_MS), pdTRUE, (void*)this, _SpeedControlfunc);
   if(_HandleCurrentControl !=NULL) {
     xTimerStart(_HandleCurrentControl,0);
   }
@@ -109,7 +109,7 @@ void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
   static const char *tag = "DCservo";
   myServo->_currentMilliamp = myServo->_motor.getCurrentMilliamps();
   myServo->_currentFiltered = myServo->_currentFiltered * r + (1-r) * myServo->_currentMilliamp;
-  ESP_LOGI(tag, "current filtered %f", myServo->_currentFiltered);
+  //  ESP_LOGI(tag, "current filtered %f", myServo->_currentFiltered);
 
   myServo->_errorcurrent_prepre = myServo->_errorcurrent_pre;
   myServo->_errorcurrent_pre = myServo->_errorcurrent;
@@ -121,7 +121,7 @@ void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
 
   myServo->_motor.SetPWM(myServo->_uPWM);
 
-  ESP_LOGI(tag, "error : %f, pwm: %f" , myServo->_errorcurrent, myServo->_uPWM);
+  //  ESP_LOGI(tag, "error : %f, pwm: %f" , myServo->_errorcurrent, myServo->_uPWM);
 }
 
 void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)

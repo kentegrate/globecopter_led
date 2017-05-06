@@ -5,6 +5,7 @@
 #include "esp_types.h"
 #include "freertos/FreeRTOS.h"
 #include "driver/gpio.h"
+#include "freertos/timers.h"
 /*
  * Encoder
  */
@@ -29,12 +30,14 @@
    double getTheta();
 
    void _calctheta();
+   static void _EncoderUpdatefunc(void*);
    //   static void IRAM_ATTR _updateEnc(void*);
    uint8_t _PhaseA;
    uint8_t _PhaseB;
    double _coeff_step2rad;
    static int8_t _encnum;
-   // Private Method
+   TimerHandle_t _HandleEncoderUpdate;
+   
 
  };
 
