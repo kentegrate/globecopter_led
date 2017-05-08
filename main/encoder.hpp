@@ -6,7 +6,8 @@
 #include "freertos/FreeRTOS.h"
 #include "driver/gpio.h"
 #include "freertos/timers.h"
-#include <sys/time.h>
+#include "utils.hpp"
+#include "pwm_decoder.hpp"
 class KF{
 public:
   double omega_raw;
@@ -50,18 +51,8 @@ public:
    //   static int8_t _encnum;
    TimerHandle_t _HandleEncoderUpdate;
    KF* filter;
-
+   PWMDecoder pwm_decoder_0;
+   PWMDecoder pwm_decoder_1;
  };
 
-#ifndef timersub
-#define timersub(a,b,result)                                                \
-do {                                                                        \
-  (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                             \
-  (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                          \
-  if ((result)->tv_usec < 0) {                                              \
-    --(result)->tv_sec;                                                     \
-    (result)->tv_usec += 1000000;                                           \
-  }                                                                         \
- } while (0)
-#endif
 #endif //GLOBECOPTER_ENCODER_HPP

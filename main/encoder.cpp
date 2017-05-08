@@ -18,7 +18,8 @@
 #include "Adafruit_DotStar.hpp"
 #include "globe_pattern.h"
 #define MAX_COUNT 6170
-#define GEAR_RATIO 51.46;//51.47 is a little big and 51.45 is a little smaill
+//#define GEAR_RATIO 51.46;//51.47 is a little big and 51.45 is a little smaill
+#define GEAR_RATIO 52;//51.47 is a little big and 51.45 is a little smaill
 pcnt_dev_t PCNT;
 KF kf;
 xQueueHandle pcnt_evt_queue;  /*A queue to handle pulse counter event*/
@@ -30,7 +31,7 @@ typedef struct {
 
 static void gpio_task_example(void* arg){
   nvs_flash_init();  
-  static const char *tag = "FOR";
+  //  static const char *tag = "FOR";
   int16_t count = 0;
   int16_t last_count = 0;
   Adafruit_DotStar strip = Adafruit_DotStar(200, DOTSTAR_BRG);
@@ -75,17 +76,6 @@ Encoder::Encoder()
 // Public method
 void Encoder::init()
 {
-    // PhaseA
-
-  //  gpio_initialize_interrupt(_PhaseB, GPIO_INTR_ANYEDGE, GPIO_PULLUP_ONLY);
-  if(id==0) {
-    /*
-      gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));h
-      xTaskCreate(gpio_task_example, "")
-    */
-    
-
-  }
   pcnt_config_t pcnt_config;
   pcnt_config.pulse_gpio_num = 32;
   pcnt_config.ctrl_gpio_num = 38;
@@ -130,12 +120,14 @@ void Encoder::init()
   pcnt_counter_resume(PCNT_UNIT_1);
   
 
-  //  pcnt_evt_queue = xQueueCreate(10, sizeof(pcnt_evt_t));
   xTaskCreatePinnedToCore(gpio_task_example, "gpio_task_example", 2048, NULL, 20, NULL, 1);
   _HandleEncoderUpdate = xTimerCreate("EncoderUpdate", 15, pdTRUE, NULL, _EncoderUpdatefunc);
   if(_HandleEncoderUpdate != NULL){
     xTimerStart(_HandleEncoderUpdate, 0);
   }
+
+  pwm_decoder_0.init(34);
+  pwm_decoder_1.init(35);  
 }
 
 
@@ -150,7 +142,7 @@ void Encoder::_EncoderUpdatefunc(TimerHandle_t xTimer){
   else{
     pulse_count = count - last_count;
   }
-  kf.omega_raw = 1000.0*pulse_count/12.0/15*360;
+  kf.omega_raw = 1000.0*pulse_count/12.0/15*360;//degree per sec
   last_count = count;
   kf._measurementUpdate();
   kf.theta_encoder += pulse_count / 12.0 * 360.0 /GEAR_RATIO;
@@ -171,10 +163,9 @@ void KF::_measurementUpdate(){
   
   double P_post = P + Q;
   double G = P_post / (P_post + R);
-  w = w + G*(omega_raw - w); //w is rps for the motor
+  w = w + G*(omega_raw - w); //w is degree per sec for the motor
   P = (1-G)*P_post;
-  static const char *tag = "KF";
-  //  ESP_LOGI(tag, "filtered rps %f", w/51.45);
+
   
 }
 void KF::_timeUpdate(){

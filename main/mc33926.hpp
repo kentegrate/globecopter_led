@@ -34,6 +34,8 @@ private:
 
   //
   uint32_t _maxPWM;
+public:
+  int enable;
 };
 
 #endif //GLOBECOPTER_MC33926_HPP

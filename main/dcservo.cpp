@@ -81,6 +81,8 @@ void DCServo::startControl()
 void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
 {
   DCServo* myServo = (DCServo*)pvTimerGetTimerID(xTimer);
+  myServo->_motor.enable = (myServo->_enc.pwm_decoder_0.width > 1500);
+    
   double r = 0.9;
   static const char *tag = "DCservo";
   myServo->_currentMilliamp = myServo->_motor.getCurrentMilliamps();
@@ -88,8 +90,8 @@ void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
   //  ESP_LOGI(tag, "current filtered %f", myServo->_currentFiltered);
   myServo->_uPWM = myServo->currentPID.update(myServo->_targetcurrentMilliamp, myServo->_currentMilliamp);
   myServo->_motor.SetPWM(myServo->_uPWM);
-
-  //  ESP_LOGI(tag, "error : %f, pwm: %f" , myServo->_errorcurrent, myServo->_uPWM);
+  
+  ESP_LOGI(tag, "current I : %f, target I: %f pwm: %f" , myServo->_currentMilliamp, myServo->_targetcurrentMilliamp, myServo->_uPWM);
 }
 
 void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)
@@ -100,7 +102,7 @@ void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)
     myServo->_targetcurrentMilliamp = myServo->speedPID.update(myServo->_targetspeed,
 							       myServo->_speed);
     static const char *tag = "DCservo";
-    //        ESP_LOGI(tag, "speed target : %f speed current: %f", myServo->_targetspeed,
-    //		 myServo->_speed);
+    ESP_LOGI(tag, "speed target : %f speed current: %f", myServo->_targetspeed,
+	     myServo->_speed);
   }
 

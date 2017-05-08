@@ -60,19 +60,21 @@ void MC33926Driver::init()
   gpio_initialize_output(_IN1, 0);
   gpio_initialize_output(_IN2, 0);
 
-  // SF
 
-  /*
-   * ADC1
-   */
   adc1_config_width(ADC_WIDTH_12Bit);
   //  adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_11db); // GPIO 36
   adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_0db); // GPIO 36
+  enable = false;
 }
 
 void MC33926Driver::SetPWM(int32_t speed)
 {
+  speed = -1200;
   uint8_t reverse = 0;
+  //  static const char *tag = "MC33926";  
+  //  if(!enable)
+  //    speed = 0;
+  //  ESP_LOGI(tag, "enable: %d", enable);
 
   if (speed < 0)
   {
@@ -86,11 +88,13 @@ void MC33926Driver::SetPWM(int32_t speed)
   ledc_set_duty(LEDC_HIGH_SPEED_MODE, _chcfg_1.channel, 0);//speed);
   ledc_set_duty(LEDC_HIGH_SPEED_MODE, _chcfg_2.channel, 0);//speed);
   if(reverse){
-    ledc_set_duty(LEDC_HIGH_SPEED_MODE, _chcfg_1.channel, speed);//speed);        
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, _chcfg_1.channel, speed);//speed);            
+
 
   }
   else{
-    ledc_set_duty(LEDC_HIGH_SPEED_MODE, _chcfg_2.channel, speed);//speed);
+    ledc_set_duty(LEDC_HIGH_SPEED_MODE, _chcfg_2.channel, speed);//speed);    
+
 
   }
   
