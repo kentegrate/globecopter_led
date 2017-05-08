@@ -45,9 +45,10 @@ void SPI::init(int mosiPin, int misoPin, int clkPin, int csPin) {
   spi_bus_config_t bus_config;
   bus_config.sclk_io_num   = clkPin; // CLK
   bus_config.mosi_io_num   = mosiPin; // MOSI
-  bus_config.miso_io_num   = -1;
+  bus_config.miso_io_num   = misoPin;
   bus_config.quadwp_io_num = -1; // Not used
   bus_config.quadhd_io_num = -1; // Not used
+  bus_config.max_transfer_sz=4096;
   ESP_LOGI(tag, "... Initializing bus.");
   ESP_ERROR_CHECK(spi_bus_initialize(HSPI_HOST, &bus_config, 1));
 
@@ -79,6 +80,7 @@ void SPI::init(int mosiPin, int misoPin, int clkPin, int csPin) {
 void SPI::transfer(uint8_t *data, size_t dataLen) {
   assert(data != nullptr);
   assert(dataLen > 0);
+  //ESP_LOGI(tag, "datalen : %d", dataLen);
   #ifdef DEBUG
   for (auto i=0; i<dataLen; i++) {
     ESP_LOGD(tag, "> %2d %.2x", i, data[i]);

@@ -102,7 +102,7 @@ void Adafruit_DotStar::show(void) {
       buff[byte_count++] = *ptr++;
     }
   }
-  for(int j = 0; j < 4; j++){
+  for(int j = 0; j < 13; j++){
     buff[byte_count++] = 0xFF;
   }
   spi.transfer(buff, byte_count);

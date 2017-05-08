@@ -6,6 +6,21 @@
 #include "freertos/FreeRTOS.h"
 #include "driver/gpio.h"
 #include "freertos/timers.h"
+#include <sys/time.h>
+class KF{
+public:
+  double omega_raw;
+  double theta;
+  double theta_encoder;   
+  double P;
+  double w;
+  struct timeval last_update;
+  void _measurementUpdate();
+  void _timeUpdate();  
+  KF();
+  
+};
+
 /*
  * Encoder
  */
@@ -13,9 +28,6 @@
  {
  public:
    // variable
-   long absCount;
-   double theta_raw;
-   double theta_processed;
    int id;
    int8_t _oldA;
    int8_t _oldB;
@@ -29,8 +41,7 @@
    long getCount();
    double getTheta();
 
-   void _calctheta();
-   void _updateKF();
+
    static void _EncoderUpdatefunc(void*);
    //   static void IRAM_ATTR _updateEnc(void*);
    uint8_t _PhaseA;
@@ -38,9 +49,19 @@
    double _coeff_step2rad;
    //   static int8_t _encnum;
    TimerHandle_t _HandleEncoderUpdate;
-   double P;
-   double w;
+   KF* filter;
 
  };
 
+#ifndef timersub
+#define timersub(a,b,result)                                                \
+do {                                                                        \
+  (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                             \
+  (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                          \
+  if ((result)->tv_usec < 0) {                                              \
+    --(result)->tv_sec;                                                     \
+    (result)->tv_usec += 1000000;                                           \
+  }                                                                         \
+ } while (0)
+#endif
 #endif //GLOBECOPTER_ENCODER_HPP

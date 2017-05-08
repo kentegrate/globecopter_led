@@ -96,11 +96,11 @@ void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)
   {
 
     DCServo* myServo = (DCServo*)pvTimerGetTimerID(xTimer);
-    myServo->_speed = myServo->_enc.w;    
+    myServo->_speed = myServo->_enc.filter->w;    
     myServo->_targetcurrentMilliamp = myServo->speedPID.update(myServo->_targetspeed,
 							       myServo->_speed);
     static const char *tag = "DCservo";
-        ESP_LOGI(tag, "speed target : %f speed current: %f", myServo->_targetspeed,
-		 myServo->_speed);
+    //        ESP_LOGI(tag, "speed target : %f speed current: %f", myServo->_targetspeed,
+    //		 myServo->_speed);
   }
 
