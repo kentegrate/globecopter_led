@@ -21,7 +21,7 @@
 #define TEST_WITHOUT_RELOAD   0   /*!< example of auto-reload mode */
 #define TEST_WITH_RELOAD   1      /*!< example without auto-reload mode */
 
-
+#define INDICATOR_GPIO 5
 /*
  * Servo
  */
@@ -48,6 +48,8 @@
     double getTheta();
     double getSpeed();
     double getCurrent();
+   bool motorProtected();
+   void protectMotor();
    static void _CurrentControlfunc(void*);
    static void _SpeedControlfunc(void*);   
     void IRAM_ATTR control();
@@ -90,5 +92,9 @@
 
    PID speedPID;
    PID currentPID;
+
+   bool is_protected;
+   struct timeval overcurrent_time;
+   
 };
 #endif //GLOBECOPTER_DCSERVO_HPP

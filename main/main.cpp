@@ -34,6 +34,7 @@ extern "C" void app_main(void)
   //  myServo.SetKSpeed(
   myServo.SetTargetSpeed(4*51.46*360);
   myServo.startControl();
+  gpio_initialize_output(19, 0);
   while(1){
     vTaskDelay(1000/portTICK_PERIOD_MS);
   }

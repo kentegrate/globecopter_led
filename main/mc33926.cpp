@@ -65,15 +65,16 @@ void MC33926Driver::init()
   //  adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_11db); // GPIO 36
   adc1_config_channel_atten(ADC1_CHANNEL_3, ADC_ATTEN_0db); // GPIO 36
   enable = false;
+
 }
 
 void MC33926Driver::SetPWM(int32_t speed)
 {
-  speed = -1200;
+  //  speed = -1900;
   uint8_t reverse = 0;
   //  static const char *tag = "MC33926";  
-  //  if(!enable)
-  //    speed = 0;
+  if(!enable)
+    speed = 0;
   //  ESP_LOGI(tag, "enable: %d", enable);
 
   if (speed < 0)

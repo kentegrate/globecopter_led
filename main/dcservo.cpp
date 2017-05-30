@@ -47,6 +47,9 @@ void DCServo::init()
 {
   _motor.init();
   _enc.init();
+  gpio_initialize_output(INDICATOR_GPIO, 1);
+  is_protected = false;
+  
 }
 
 void DCServo::startControl()
@@ -87,11 +90,19 @@ void DCServo::_CurrentControlfunc(TimerHandle_t xTimer)
   static const char *tag = "DCservo";
   myServo->_currentMilliamp = myServo->_motor.getCurrentMilliamps();
   myServo->_currentFiltered = myServo->_currentFiltered * r + (1-r) * myServo->_currentMilliamp;
+  if(myServo->_currentFiltered > 1200){
+    myServo->protectMotor();
+  }
   //  ESP_LOGI(tag, "current filtered %f", myServo->_currentFiltered);
-  myServo->_uPWM = myServo->currentPID.update(myServo->_targetcurrentMilliamp, myServo->_currentMilliamp);
-  myServo->_motor.SetPWM(myServo->_uPWM);
+  if(!myServo->motorProtected()){
+    myServo->_uPWM = myServo->currentPID.update(myServo->_targetcurrentMilliamp, myServo->_currentMilliamp);
+    myServo->_motor.SetPWM(myServo->_uPWM);
+  }
+  else{
+    myServo->_motor.SetPWM(0);
+  }
   
-  ESP_LOGI(tag, "current I : %f, target I: %f pwm: %f" , myServo->_currentMilliamp, myServo->_targetcurrentMilliamp, myServo->_uPWM);
+  //  ESP_LOGI(tag, "current I : %f, target I: %f pwm: %f" , myServo->_currentMilliamp, myServo->_targetcurrentMilliamp, myServo->_uPWM);
 }
 
 void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)
@@ -106,3 +117,29 @@ void DCServo::_SpeedControlfunc(TimerHandle_t xTimer)
 	     myServo->_speed);
   }
 
+
+bool DCServo::motorProtected(){
+
+  if(is_protected){
+    struct timeval current_time, time_delta;
+    gettimeofday(&current_time, NULL);
+    timersub(&current_time, &overcurrent_time, &time_delta);
+    
+    if(time_delta.tv_sec>5){
+      is_protected = false;
+    }
+  }
+  if(is_protected){
+    gpio_set_level(static_cast<gpio_num_t>(INDICATOR_GPIO), 0);
+  }
+  else{
+    gpio_set_level(static_cast<gpio_num_t>(INDICATOR_GPIO), 1);
+  }
+  
+  return is_protected;
+}
+
+void DCServo::protectMotor(){
+  gettimeofday(&overcurrent_time, NULL);
+  is_protected = true;
+}
